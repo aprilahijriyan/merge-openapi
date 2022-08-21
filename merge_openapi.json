@@ -1,0 +1,33 @@
+{
+    "__name__": "merge_openapi",
+    "__description__": "Example Configuration",
+    "__version__": "0.1.0",
+    "__license__": "MIT",
+    "spec": {
+        "openapi": "3.0.2",
+        "info": {
+            "title": "Merge OpenAPI",
+            "version": "0.1.0",
+            "description": "Merge OpenAPI",
+            "termsOfService": "",
+            "contact": {
+                "name": "",
+                "url": "",
+                "email": ""
+            },
+            "license": {
+                "name": "",
+                "url": ""
+            }
+        },
+        "servers": [
+            {
+                "url": "http://localhost:5000",
+                "description": "Local server"
+            }
+        ]
+    },
+    "openapi_urls": [
+        "http://localhost:8022/api/v1/openapi.json"
+    ]
+}
