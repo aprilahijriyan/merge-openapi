@@ -11,12 +11,16 @@ def get_openapi_spec(url):
     Get OpenAPI spec from url
     """
 
-    response = requests.get(url)
-    if response.status_code == 200:
-        try:
-            return response.json()
-        except json.decoder.JSONDecodeError:
-            print("Error: OpenAPI spec is not valid JSON ({url})".format(url=url))
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            try:
+                return response.json()
+            except json.decoder.JSONDecodeError:
+                print("Error: OpenAPI spec is not valid JSON ({url})".format(url=url))
+    except requests.exceptions.RequestException as e:
+        print("Error: Failed to get OpenAPI spec from url ({url})".format(url=url))
+        print(e)
 
     return None
 
@@ -28,9 +32,11 @@ class MergeOpenAPI:
         """
 
         with open(config_file, "r") as f:
-            config = json.load(f)
+            config: dict = json.load(f)
+            assert isinstance(config, dict), "Invalid config file"
 
         self.spec = config["spec"]
+        self._openapi_urls = config.get("openapi_urls", [])
         self._set_initial_data()
 
     def _set_initial_data(self):
@@ -64,7 +70,7 @@ class MergeOpenAPI:
             )
 
     def merge(self, openapi_urls: List[str]):
-        for url in openapi_urls:
+        for url in set(openapi_urls + self._openapi_urls):
             openapi_spec = get_openapi_spec(url)
             if openapi_spec:
                 self.merge_paths(openapi_spec)
@@ -92,7 +98,12 @@ def main():
             default=os.path.join(os.getcwd(), "merged_openapi.json"),
         )
         parser.add_argument(
-            "-u", "--url", dest="openapi_urls", help="OpenAPI spec url", action="append"
+            "-u",
+            "--url",
+            dest="openapi_urls",
+            help="OpenAPI spec url",
+            action="append",
+            default=[],
         )
         args = parser.parse_args()
         if os.path.isfile(args.output_file):
